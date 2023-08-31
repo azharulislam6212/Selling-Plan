@@ -1,0 +1,264 @@
+            {% comment %} {% if product.selling_plan_groups.size > 0 %}
+                <div>
+                  <label for="plans">Purchase options:</label>
+                  <select name="selling_plan" id="plans">
+                    <option value="">One time purchase</option>
+                    {% for variant in product.variants %}
+                      <optgroup label="{{ variant.title }}">
+                        {% for allocation in variant.selling_plan_allocations %}
+                          <option value="{{ allocation.selling_plan.id }}">
+                            {{ allocation.selling_plan.name }}
+                          </option>
+                        {% endfor %}
+                      </optgroup>
+                    {% endfor %}
+                  </select>
+                </div>
+               {% endif %}    {% endcomment %}
+
+  
+
+               
+               
+         
+            
+               {%- liquid
+                assign current_variant = product.selected_or_first_available_variant | default: product.variants.first
+                assign current_selling_plan_allocation = current_variant.selected_selling_plan_allocation
+               
+                if current_selling_plan_allocation == nil and current_variant.requires_selling_plan
+                 assign current_selling_plan_allocation = current_variant.selling_plan_allocations | first
+                endif
+ 
+ 
+                assign offer = current_selling_plan_allocation | default: current_variant
+                assign offerPrice = offer.price 
+                assign discount = offer.price | times: 0.1
+                assign discountedPrice = offerPrice | minus: discount
+
+                assign perdiscount  = current_variant.price | minus: discountedPrice
+                assign perce  = perdiscount | divided_by: current_variant.price
+                assign percentage  = perce | times:100
+
+   
+    
+ 
+               %}
+         
+               {% if product.selling_plan_groups.size > 0 %}
+          
+          <h2>Selling Plan </h2>
+          <div id="custom-selling_plan-{{ section.id }}"> 
+          <div class="custom-selling_plan_wrap">
+                <div class="custom-selling_plan" >
+
+                  <input type="hidden"  name="selling_plan" value="">
+
+                  <fieldset>
+
+                    <span class="mst-popular">Most Pouplar</span>
+                  
+                      <input id="autodeliver" type="radio"  name="purchase_option" value="autodeliver" data-selling-price="{{ discountedPrice | money }}">
+           
+                      <label for="autodeliver"> <span>Subscribe & save {{percentage | append: '%' }}  <span class="save-price">{{ discountedPrice | money }}</span> </span>  </label>
+                   
+  
+                     {% for group in product.selling_plan_groups %}
+              
+                       <select class="selling-plans"data-variant-id="{{ current_variant.id }}">
+                         {% for selling_plan in group.selling_plans %}
+                         <option value="{{ selling_plan.id }}" {% if forloop.first %}selected{%endif%}>	
+                         {{ selling_plan.name }}
+                       
+                        </option>
+                         {% endfor %}
+                       </select>
+                       
+                 
+            
+                     {% endfor %}
+                  
+                  </fieldset>
+
+                   <fieldset>
+               
+                    <input id="onetime" type="radio"  name="purchase_option" value="onetime" data-selling-price="{{offerPrice | money }}" checked>
+                 
+                    <label for="onetime">  <span >One-time purchase  <span class="save-price offer-price"> {{offerPrice | money }} </span> </span>   </label>
+               
+                </fieldset>
+                 
+             </div> 
+
+
+            <div class="price">
+              <span class="price-item new_price">{{ product.price | money }}</span>
+    
+            </div>
+          </div>
+
+            </div>
+            {% endif %}
+
+
+<style>
+
+
+
+.custom-selling_plan_wrap{
+  margin-bottom: 30px;
+  background-color: #fff;
+}
+.custom-selling_plan{
+  margin-bottom: 10px;
+}
+
+.custom-selling_plan fieldset{
+  border-radius: 10px;
+  padding: 10px;
+  margin-bottom: 20px;
+  position: relative;
+}
+.custom-selling_plan fieldset:last-child{
+  margin-bottom: 0;
+}
+
+.save-price, .offer-price{
+  position: absolute;
+  right: 20px;
+}
+
+.offer-price{
+  opacity: 0.5;
+}
+
+.selling-plans{
+  margin-top: 10px;
+  width: 100%;
+  height: 45px;
+  background-color: rgb(232, 184, 200);
+  border: 0;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 400;
+  padding:0 10px;
+}
+.save-price{
+  font-size:18px;
+  font-weight: bold;
+}
+.price .price-item{
+  font-size: 20px;
+  font-weight: bold;
+  color: #212b36;
+}
+
+.selling-plans:focus-visible{
+ box-shadow: none;
+ outline: 0;
+ border: 0;
+}
+
+.custom-selling_plan label span{
+  font-size: 16px;
+  color: #212b36;
+}
+
+
+.mst-popular{
+  background-color: #6dc797;
+  border-radius: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  right: 10px;
+  top: -10px;
+  font-size: 12px;
+  color: #fff;
+  padding: 10px;
+}
+.custom-selling_plan [type="radio"]:checked,
+.custom-selling_plan [type="radio"]:not(:checked) {
+    position: absolute;
+    left: -9999px;
+}
+.custom-selling_plan [type="radio"]:checked + label,
+.custom-selling_plan [type="radio"]:not(:checked) + label
+{
+    padding-left: 32px;
+    cursor: pointer;
+    line-height: 20px;
+    display: inline-block;
+    color: #666;
+}
+.custom-selling_plan [type="radio"]:checked + label:before,
+.custom-selling_plan [type="radio"]:not(:checked) + label:before {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: 15px;
+    width: 18px;
+    height: 18px;
+    border: 1px solid #212b36;
+    border-radius: 100%;
+    background: #fff;
+}
+.custom-selling_plan [type="radio"]:checked + label:after,
+.custom-selling_plan [type="radio"]:not(:checked) + label:after {
+    content: '';
+    width: 12px;
+    height: 12px;
+    background: #212b36;
+    position: absolute;
+    top: 18px;
+    left: 18px;
+    border-radius: 100%;
+    -webkit-transition: all 0.2s ease;
+    transition: all 0.2s ease;
+}
+.custom-selling_plan [type="radio"]:not(:checked) + label:after {
+    opacity: 0;
+    -webkit-transform: scale(0);
+    transform: scale(0);
+}
+.custom-selling_plan [type="radio"]:checked + label:after {
+    opacity: 1;
+    -webkit-transform: scale(1);
+    transform: scale(1);
+}
+
+</style>
+
+
+
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+
+<script>
+
+
+ $(document).on("change","input[name='purchase_option']",function(event) {
+  const selling_plan = $('.custom-selling_plan input[name="selling_plan"]');
+  var price = $(this).data('selling-price');
+    if(this.value == "onetime"){
+      selling_plan.val('');
+      $('.new_price').text(price);
+    }
+  
+  if(this.value == "autodeliver"){
+    var value = $(".selling-plans option").filter(":selected").val();
+    selling_plan.val(value);
+    $('.new_price').text(price);
+  }
+ }); 
+
+
+$(document).on("click",".selling-plans",function(event) {
+  var target = $('.custom-selling_plan input[name="selling_plan"]');
+  target.val( this.value);
+}); 
+</script>
+
+
